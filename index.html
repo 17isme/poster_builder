@@ -1,0 +1,314 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>海报生成器</title>
+<script src="./js/vue.min.js"></script>
+<script src="./js/qrious.min.js"></script>
+<style type="text/css">
+body,html {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: "黑体";
+}
+#app {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+/*控制台*/
+.control {
+	width: 30%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-shadow: 7px 0px 10px 0px #888888;
+	z-index: 999;
+	background-color: #fff;
+	overflow: hidden;
+}
+.control h1 {
+	color: #696969;
+	text-align: center;
+	margin: 0;
+	padding: 3% 0;
+	border-bottom: 2px solid #696969;
+	font-weight: 100;
+}
+.control h2 {
+	color: #696969;
+	text-align: center;
+	margin: 0 0 3% 0;
+	padding: 3% 0;
+	border-bottom: 1px solid #696969;
+	font-weight: 100;
+	width: 40%;
+}
+.control .checkbox {
+	display: block;
+	background: none;
+	border: none;
+	color: #808080;
+	font-size: 20px;
+	padding: 5px 0px 5px 40px;
+	width: 90%;
+	margin: 2% 5%;
+	position: relative;
+	box-sizing: border-box;
+	text-align: left;
+	outline: none;
+}
+.control .checkbox:before {
+	content: "";
+	display: block;
+	background: #fff;
+	border: 2px solid #aaa;
+	width: 25px;
+	height: 25px;
+	position: absolute;
+	left: 3px;
+	top: 3px;
+}
+.control .checkbox.active:before {
+	background: #656565;
+	border: 2px solid #bdbdbd;
+}
+
+.control textarea {
+	display: block;
+	background: #fff;
+	border: 1px solid #808080;
+	color: #808080;
+	box-sizing: border-box;
+	font-size: 20px;
+	padding: 5px 10px;
+	border-radius: 2px;
+	width: 90%;
+	margin: 2% 5%;
+	text-align: center;
+	resize:none;
+}
+.control input {
+	display: block;
+	background: #fff;
+	border: 1px solid #808080;
+	color: #808080;
+	box-sizing: border-box;
+	font-size: 20px;
+	padding: 5px 10px;
+	border-radius: 2px;
+	width: 90%;
+	margin: 2% 5%;
+	text-align: center;
+}
+.control input:disabled {
+	background-color: #dddddd;
+}
+.control .btn {
+	display: block;
+	background: #fff;
+	border: 1px solid #808080;
+	color: #808080;
+	box-sizing: border-box;
+	font-size: 20px;
+	padding: 5px 10px;
+	border-radius: 2px;
+	width: 90%;
+	margin: 2% 5%;
+}
+.control .btn-upload {
+	position: relative;
+}
+.control .btn-upload>input {
+	opacity: 0;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+.control .list-lucker {
+	padding: 0;
+	border-top: 1px solid #aaa;
+	width: 80%;
+	margin: 10px 10%;
+	border-bottom: 1px solid #aaa;
+}
+.control li>img {
+	width: 100%;
+}
+/*工具方法*/
+.hide {
+	display: none!important;
+}
+/*预览*/
+.preview {
+	width: 70%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #aaa;
+}
+#phone {
+	width: 750px;
+	height: 1334px;
+	background-color: #fff;
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform-origin: 50% 50%;
+	transform: scale(0.4);
+}
+</style>
+</head>
+<body>
+<div id="app">
+	<!-- 配置器 -->
+	<div class="control">
+		<h1>控制台</h1>
+		<button class="btn" @click="downloadPoster">保存海报</button>
+		<!-- <button class="btn btn-upload">
+			背景
+			<input type="file" name="" @change="setBackground" >
+		</button> -->
+		<h2>内容设置</h2>
+		<input type="text" name="" placeholder="标题" v-model="title">
+		<button class="btn btn-upload">
+			头图
+			<input type="file" name="" @change="setNewsPic" >
+		</button>
+		<textarea v-model="abstract" placeholder="摘要"></textarea>
+		<input type="text" name="" placeholder="二维码内容" v-model="qrCode">
+	</div>
+	<!-- 预览 -->
+	<div class="preview">
+		<svg id="phone" viewBox="0 0 750 1334" preserveAspectRatio="none" ref="phone">
+			<!-- 背景 -->
+			<image v-bind:xlink:href="background" width="750" height="1334" x="0" y="0" preserveAspectRatio="none"></image>
+			<!-- 标题 -->
+			<text x="50" v-bind:y="160-index*50" fill="#4a4a4a" style="font-size: 40px; font-weight: 900;" v-for="(item, index) in titleArr">{{item}}</text>
+			<!-- 头图 -->
+			<image v-bind:xlink:href="newsPic" width="700" height="480" x="25" y="230" preserveAspectRatio="none"></image>
+			<!-- 摘要 -->
+			<text x="50" v-bind:y="780+index*35" fill="#4a4a4a" style="font-size: 30px; font-weight: 500;" v-for="(item, index) in abstractArr">{{item}}</text>
+			<!-- 二维码 -->
+			<image v-bind:xlink:href="qrCodeBase64" width="200" height="200" x="65" y="1050" preserveAspectRatio="none"></image>
+		</svg>
+	</div>
+</div>
+<script type="text/javascript">
+// 将字符分割为数组
+function strToArr(str,len){
+	var arr = [];
+	for (var i = 0; i <= str.length/len; i++) {
+		arr.push( str.substr(i * len,len) );
+	}
+	return arr;
+}
+var app = new Vue({
+	el: '#app',
+	data: {
+		title:'',
+		titleArr: [],
+		abstract:'',
+		abstractArr: [],
+		background: './img/bg-1.png',
+		newsPic: '',
+		qrCode: '',
+		qrCodeBase64: ''
+	},
+	watch:{
+		title: function(t){
+			this.titleArr = strToArr(t,15).reverse();
+		},
+		abstract: function(t){
+			this.abstractArr = strToArr(t,22);
+		},
+		qrCode: function(url){
+			var qr = new QRious({
+				value: url
+			});
+			this.qrCodeBase64 = qr.toDataURL('image/jpeg');
+		}
+	},
+	methods:{
+		setBackground: function(e){
+			var self = this;
+			var fileData = e.target.files[0];
+			// 控制大小
+			if (fileData.size > 5000000) {
+				alert("上传文件不能大于5M");
+				return;
+			}
+			var reader = new FileReader();
+			reader.readAsDataURL(fileData);
+			reader.onload = function (e) {
+				self.background = this.result;
+			}
+		},
+		setNewsPic: function(e){
+			var self = this;
+			var fileData = e.target.files[0];
+			// 控制大小
+			if (fileData.size > 5000000) {
+				alert("上传文件不能大于5M");
+				return;
+			}
+			var reader = new FileReader();
+			reader.readAsDataURL(fileData);
+			reader.onload = function (e) {
+				self.newsPic = this.result;
+			}
+		},
+		downloadPoster: function(){
+			var canvas = document.createElement("CANVAS");
+			canvas.width = 750;
+			canvas.height = 1334;
+			ctx = canvas.getContext("2d");
+			// 生成背景
+			var imgBackground = new Image();
+			imgBackground.src = this.background;
+			ctx.drawImage(imgBackground, 0, 0, 750, 1334);
+			// 生成新闻图片
+			var imgNewsPic = new Image();
+			imgNewsPic.src = this.newsPic;
+			ctx.drawImage(imgNewsPic, 25, 230, 700, 480);
+			// 绘制文字
+			ctx.font="40px 黑体";
+			ctx.fillStyle = '#4a4a4a';
+			for (var i = this.titleArr.length - 1; i >= 0; i--) {
+				ctx.fillText (this.titleArr[i], 50, 160 - i*50, 750);
+			}
+			
+			ctx.font="30px 黑体";
+			ctx.fillStyle = '#4a4a4a';
+			for (var i = this.abstractArr.length - 1; i >= 0; i--) {
+				ctx.fillText (this.abstractArr[i], 50, 780 + i*35, 750);
+			}
+			// 绘制二维码 TODO
+			var qrCodePic = new Image();
+			qrCodePic.src = this.qrCodeBase64;
+			ctx.drawImage(qrCodePic, 65, 1050, 200, 200);
+			// 生成下载数据
+			var imgData = canvas.toDataURL('image/jpeg');
+			var a = document.createElement("a");
+			a.href = imgData;
+			a.download = this.title+"_海报.jpeg";
+			a.click();
+		}
+	},
+	created:function(){
+		var self = this;
+		
+	}
+});
+</script>
+</body>
+</html>
