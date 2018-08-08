@@ -4,6 +4,7 @@
 <title>海报生成器</title>
 <script src="./js/vue.min.js"></script>
 <script src="./js/qrious.min.js"></script>
+<!-- <script src="./js/axios.min.js"></script> -->
 <style type="text/css">
 body,html {
 	width: 100%;
@@ -88,6 +89,7 @@ body,html {
 	padding: 5px 10px;
 	border-radius: 2px;
 	width: 90%;
+	height: 200px;
 	margin: 2% 5%;
 	text-align: center;
 	resize:none;
@@ -131,6 +133,9 @@ body,html {
 	top: 0;
 	left: 0;
 }
+.control .btn-imp {
+	background-color: #f1f1f1;
+}
 .control .list-lucker {
 	padding: 0;
 	border-top: 1px solid #aaa;
@@ -173,7 +178,7 @@ body,html {
 	<!-- 配置器 -->
 	<div class="control">
 		<h1>控制台</h1>
-		<button class="btn" @click="downloadPoster">保存海报</button>
+		<button class="btn btn-imp" @click="downloadPoster">保存海报</button>
 		<!-- <button class="btn btn-upload">
 			背景
 			<input type="file" name="" @change="setBackground" >
@@ -206,9 +211,22 @@ body,html {
 <script type="text/javascript">
 // 将字符分割为数组
 function strToArr(str,len){
+	str = str.split("").reverse();
 	var arr = [];
-	for (var i = 0; i <= str.length/len; i++) {
-		arr.push( str.substr(i * len,len) );
+	var isHalfReg = /^[a-zA-Z0-9]$/;
+	var row = 0;
+	var idx = 0;
+	for (var i = str.length - 1; i >= 0; i--) {
+		var isHalf = isHalfReg.test(str[i]);
+		idx += isHalf?1:2;
+		if (!arr[row]) {
+			arr[row] = '';
+		}
+		arr[row] += str[i];
+		if (idx >= (len*2 - 1)) {
+			row += 1;
+			idx = 0;
+		}
 	}
 	return arr;
 }
@@ -281,7 +299,7 @@ var app = new Vue({
 			imgNewsPic.src = this.newsPic;
 			ctx.drawImage(imgNewsPic, 25, 230, 700, 480);
 			// 绘制文字
-			ctx.font="40px 黑体";
+			ctx.font="40px 黑体 bolder";
 			ctx.fillStyle = '#4a4a4a';
 			for (var i = this.titleArr.length - 1; i >= 0; i--) {
 				ctx.fillText (this.titleArr[i], 50, 160 - i*50, 750);
