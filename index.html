@@ -299,7 +299,7 @@ var app = new Vue({
 			imgNewsPic.src = this.newsPic;
 			ctx.drawImage(imgNewsPic, 25, 230, 700, 480);
 			// 绘制文字
-			ctx.font="40px 黑体 bolder";
+			ctx.font="normal normal 900 40px 黑体";
 			ctx.fillStyle = '#4a4a4a';
 			for (var i = this.titleArr.length - 1; i >= 0; i--) {
 				ctx.fillText (this.titleArr[i], 50, 160 - i*50, 750);
